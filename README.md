@@ -12,4 +12,4 @@
 
 ## 第二阶段记录
 
-![签到++](https://img.shields.io/badge/签到+3-19BE6B)
+![签到++](https://img.shields.io/badge/签到+4-19BE6B)
