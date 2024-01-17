@@ -36,25 +36,25 @@
 # GitHub CLI api
 # https://cli.github.com/manual/gh_api
 
-name: generate-animation
+# name: generate-animation
 
-on:
-  schedule:
-    - cron: '0 0 * * *'
-  push:
-    branches:
-      - main
-jobs:
-  create-pr:
-    runs-on: ubuntu-latest
-        steps:
-          - name: Checkout Repository
-            uses: actions/checkout@v4
-          - name: Create Pull Request
-            uses: peter-evans/create-pull-request@v5
-            with:
-              token: ${{ secrets.GITHUB_TOKEN }}
-              commit-message: 'Create Pull Request'
-              branch: feature/demo
-              title: 'Add awesome feature'
-              body: 'This PR adds an awesome feature.'
+# on:
+#   schedule:
+#     - cron: '0 0 * * *'
+#   push:
+#     branches:
+#       - main
+# jobs:
+#   create-pr:
+#     runs-on: ubuntu-latest
+#         steps:
+#           - name: Checkout Repository
+#             uses: actions/checkout@v4
+#           - name: Create Pull Request
+#             uses: peter-evans/create-pull-request@v5
+#             with:
+#               token: ${{ secrets.GITHUB_TOKEN }}
+#               commit-message: 'Create Pull Request'
+#               branch: feature/demo
+#               title: 'Add awesome feature'
+#               body: 'This PR adds an awesome feature.'
