@@ -14,6 +14,7 @@ const baseOption = {
     'X-GitHub-Api-Version': XGitHubApiVersion
   }
 }
+const content = `更新时间: ${dayjs().format('YYYY-MM-DD HH-mm-ss')}`
 
 const startTask = async () => {
   const octokit = new Octokit({ auth: import.meta.env.VITE_TOKEN })
@@ -42,7 +43,7 @@ const startTask = async () => {
     /**
      * 创建 blob
      */
-    const { data: blobData } = await octokit.request(`POST /repos/${owner}/${repo}/git/blobs`, { ...baseOption, encoding: 'utf-8', content: `当前更新日期：${curDate}` })
+    const { data: blobData } = await octokit.request(`POST /repos/${owner}/${repo}/git/blobs`, { ...baseOption, encoding: 'utf-8', content })
 
     /**
      * 创建 tree
@@ -58,7 +59,7 @@ const startTask = async () => {
      */
     const { data: newCommitData } = await octokit.request(`POST /repos/${owner}/${repo}/git/commits`, {
       ...baseOption,
-      message: `更新日期：${curDate}`,
+      message: content,
       author: { name: 'biaov', email: 'biaov@qq.com' },
       parents: [getTreeData.sha],
       tree: treeData.sha
@@ -76,8 +77,8 @@ const startTask = async () => {
       data: { number }
     } = await octokit.request(`POST /repos/${owner}/${repo}/pulls`, {
       ...baseOption,
-      title: `更新日期：${curDate}`,
-      body: `自动创建 PR，更新日期：${curDate}`,
+      title: content,
+      body: content,
       head: `biaov:${branchName}`,
       base: 'main'
     })
@@ -85,7 +86,7 @@ const startTask = async () => {
     /**
      * 合并 PR
      */
-    await octokit.request(`PUT /repos/${owner}/${repo}/pulls/${number}/merge`, { ...baseOption, pull_number: number, commit_title: '合并 PR', commit_message: '自动合并 PR' })
+    await octokit.request(`PUT /repos/${owner}/${repo}/pulls/${number}/merge`, { ...baseOption, pull_number: number, commit_title: content, commit_message: content })
   } catch (error) {
     console.log(error, '--')
   }
@@ -96,8 +97,9 @@ const startTask = async () => {
   <div class="btn" @click="startTask">点击</div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .btn {
+  @bg: #409eff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,8 +108,15 @@ const startTask = async () => {
   line-height: 40px;
   margin: 100px auto;
   border-radius: 6px;
-  background: #409eff;
+  background: @bg;
   color: #fff;
   font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    background: darken(@bg, 20%);
+  }
 }
 </style>
