@@ -1,4 +1,4 @@
-name: 定时创建命令
+name: timed-cli
 
 on:
   schedule:
