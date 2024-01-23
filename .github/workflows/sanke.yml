@@ -8,6 +8,7 @@ on:
       - main
 jobs:
   generate:
+    permissions: write-all
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -15,12 +16,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Branch
         uses: actions/github-script@v7
         env:
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             const { owner, repo } = context.repo
