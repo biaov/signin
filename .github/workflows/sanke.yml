@@ -31,7 +31,6 @@ jobs:
             const option = { owner, repo }
             const content = `更新时间戳: ${curDate}`
 
-            console.log(${{ secrets.CUSTOM_TOKEN }},'---1')
             console.log(github.GITHUB_TOKEN,'---2')
             console.log(process.env.GITHUB_TOKEN,'---3')
              console.log(process.env,'---3')
