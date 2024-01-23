@@ -29,10 +29,12 @@ jobs:
             const curDate = +new Date()
             const branchName = `feature/${curDate}/auto-create`
             const baseRef = 'main'
-            const option = context.repo
+            const option = { owner, repo }
             const content = `更新时间戳: ${curDate}`
 
-            const { data: branchData } = await github.rest.git.createRef({ ...option, ref: `refs/heads/${branchName}`, sha: context.sha })
+            const { data: { sha } } = await github.rest.repos.getCommit({ ...option, ref: 'main' })
+
+            const { data: branchData } = await github.rest.git.createRef({ ...option, ref: `refs/heads/${branchName}`, sha })
 
             const { data: getTreeData } = await github.rest.git.getTree({ ...option, tree_sha: branchData.object.sha })
 
