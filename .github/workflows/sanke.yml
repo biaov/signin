@@ -38,7 +38,11 @@ jobs:
 
             const { data: blobData } = await github.rest.git.createBlob({ ...option, content })
 
-            const { data: treeData } = await github.rest.git.createTree({ ...option, base_tree: getTreeData.sha, tree: [{ path: 'automatic-daily-updates.txt', mode: '100644', type: 'blob', sha: blobData.sha }] })
+            const { data: treeData } = await github.rest.git.createTree({
+              ...option,
+              base_tree: getTreeData.sha,
+              tree: [{ path: 'automatic-daily-updates.txt', mode: '100644', type: 'blob', sha: blobData.sha }]
+            })
 
             const { data: newCommitData } = await github.rest.git.createCommit({
               ...option,
