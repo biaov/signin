@@ -25,13 +25,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
             const { owner, repo } = context.repo;
             const curDate = +new Date()
             const branchName = `feature/${curDate}/auto-create`;
             const baseRef = 'main';
 
-            await octokit.rest.git.createRef({
+            await github.rest.git.createRef({
               owner,
               repo,
               ref: `refs/heads/${branchName}`,
