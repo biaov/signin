@@ -8,13 +8,6 @@ defineOptions({
 
 const owner = 'biaov'
 const repo = 'signin'
-const baseOption = {
-  owner,
-  repo,
-  headers: {
-    'X-GitHub-Api-Version': '2022-11-28'
-  }
-}
 
 const startTask = async () => {
   const github = new Octokit({ auth: import.meta.env.VITE_TOKEN })
@@ -30,11 +23,11 @@ const startTask = async () => {
     const content = `更新时间: ${curDateFormat}`
     const branchName = `feature/${+curDate}/auto-create`
     const baseRef = 'main'
-    const { data: readmeCont } = await github.rest.repos.getContent({ ...baseOption, ref: 'main', path: 'README.md' })
+    const { data: readmeCont } = await github.rest.repos.getContent({ ...option, ref: 'main', path: 'README.md' })
     const newReadmeCont = Buffer.from((readmeCont as Record<string, any>).content, 'base64')
       .toString()
       .replace(/(?<=签到\+)\d+/, value => `${+value + 1}`)
-    const { data: commitData } = await github.rest.repos.getCommit({ ...baseOption, ref: 'main' })
+    const { data: commitData } = await github.rest.repos.getCommit({ ...option, ref: 'main' })
     const { data: branchData } = await github.rest.git.createRef({ ...option, ref: `refs/heads/${branchName}`, sha: commitData.sha })
     const { data: getTreeData } = await github.rest.git.getTree({ ...option, tree_sha: branchData.object.sha })
     const { data: blobData } = await github.rest.git.createBlob({ ...option, content })

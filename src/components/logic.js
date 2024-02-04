@@ -1,4 +1,4 @@
-// const { owner, repo } = context.repo
+const { owner, repo } = context.repo
 const option = { owner, repo }
 const author = { name: 'biaov', email: 'biaov@qq.com' }
 const covering = num => `${num < 10 ? 0 : ''}${num}`
@@ -9,11 +9,11 @@ const curDateFormat = `${covering(curDate.getFullYear())}-${covering(curDate.get
 const content = `更新时间: ${curDateFormat}`
 const branchName = `feature/${+curDate}/auto-create`
 const baseRef = 'main'
-const { data: readmeCont } = await github.rest.repos.getContent({ ...baseOption, ref: 'main', path: 'README.md' })
+const { data: readmeCont } = await github.rest.repos.getContent({ ...option, ref: 'main', path: 'README.md' })
 const newReadmeCont = Buffer.from(readmeCont.content, 'base64')
   .toString()
   .replace(/(?<=签到\+)\d+/, value => `${+value + 1}`)
-const { data: commitData } = await github.rest.repos.getCommit({ ...baseOption, ref: 'main' })
+const { data: commitData } = await github.rest.repos.getCommit({ ...option, ref: 'main' })
 const { data: branchData } = await github.rest.git.createRef({ ...option, ref: `refs/heads/${branchName}`, sha: commitData.sha })
 const { data: getTreeData } = await github.rest.git.getTree({ ...option, tree_sha: branchData.object.sha })
 const { data: blobData } = await github.rest.git.createBlob({ ...option, content })
