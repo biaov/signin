@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import GithubApi from './components/github-api.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <GithubApi />
 </template>

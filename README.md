@@ -13,3 +13,12 @@
 ## 第二阶段记录
 
 ![签到++](https://img.shields.io/badge/签到+6-19BE6B)
+
+## 调用 Github Api 执行自动化签到
+
+- [x] 使用 Github Actions 实现签到逻辑
+- [x] 使用 TS 实现签到逻辑
+
+## 贡献者们
+
+[![贡献者们](https://contrib.rocks/image?repo=biaov/sigin)](https://github.com/biaov/sigin/graphs/contributors)
