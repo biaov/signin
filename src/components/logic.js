@@ -1,4 +1,5 @@
 const { owner, repo } = context.repo
+
 const option = { owner, repo }
 const author = { name: 'biaov', email: 'biaov@qq.com' }
 const covering = num => `${num < 10 ? 0 : ''}${num}`
