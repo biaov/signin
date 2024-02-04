@@ -24,6 +24,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
+            let fileCont=$(cat README.md)
+            fileCont = fileCont.replace(/(?<=签到\+)\d+/, value => +value + 1)
             const { owner, repo } = context.repo
             const curDate = +new Date()
             const branchName = `feature/${curDate}/auto-create`
