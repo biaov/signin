@@ -4,7 +4,7 @@ import type { Option } from './types'
 /**
  * 删除工作流
  */
-export const useDeleteWorkflow = async (option: Option, github: Octokit) => {
+export const useDeleteWorkflow = async (github: Octokit, option: Option) => {
   const { data: workflowData } = await github.rest.actions.listWorkflowRunsForRepo({ ...option })
   workflowData.workflow_runs.forEach(item => {
     github.rest.actions.deleteWorkflowRun({ ...option, run_id: item.id })
@@ -14,7 +14,7 @@ export const useDeleteWorkflow = async (option: Option, github: Octokit) => {
 /**
  * 自动化创建并合并分支
  */
-export const useCliMergeBranch = async (option: Option, github: Octokit) => {
+export const useCliMergeBranch = async (github: Octokit, option: Option) => {
   const author = { name: 'biaov', email: 'biaov@qq.com' }
   const covering = (num: number) => `${num < 10 ? 0 : ''}${num}`
   const curDate = new Date()
@@ -45,4 +45,17 @@ export const useCliMergeBranch = async (option: Option, github: Octokit) => {
   await github.rest.git.updateRef({ ...option, ref: `heads/${branchName}`, sha: newCommitData.sha, force: true })
   const { data: prData } = await github.rest.pulls.create({ ...option, title: `自动创建分支${branchName}`, head: `biaov:${branchName}`, base: baseRef, body: `自动创建分支${branchName}` })
   await github.rest.pulls.merge({ ...option, pull_number: prData.number })
+}
+
+/**
+ * 自动合并分支
+ */
+export const usePreMerge = async (github: Octokit, option: Option) => {
+  const { data: branchData } = await github.rest.repos.listBranches({ ...option })
+  branchData.forEach(async ({ name }) => {
+    if (name.includes('pre-merge/')) {
+      const { data: prData } = await github.rest.pulls.create({ ...option, title: `自动创建 PR`, head: `biaov:${name}`, base: 'main', body: `自动创建 PR` })
+      await github.rest.pulls.merge({ ...option, pull_number: prData.number })
+    }
+  })
 }

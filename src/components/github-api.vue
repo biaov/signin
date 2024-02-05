@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Octokit } from 'octokit'
 import { Buffer } from 'buffer'
-import { useDeleteWorkflow, useCliMergeBranch } from './hooks'
+import { useDeleteWorkflow, useCliMergeBranch, usePreMerge } from './hooks'
 
 defineOptions({
   name: 'GithubApi'
@@ -15,8 +15,9 @@ const startTask = async () => {
 
   try {
     const option = { owner, repo }
-    // useDeleteWorkflow(option, github) // 删除工作流
-    useCliMergeBranch(option, github) // 自动创建合并分支
+    // usePreMerge(github, option) // 创建合并分支
+    // useDeleteWorkflow(github, option) // 删除工作流
+    useCliMergeBranch(github, option) // 自动创建合并分支
   } catch (error) {
     console.log(error, '--')
   }
