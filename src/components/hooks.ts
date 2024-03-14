@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import type { Octokit } from 'octokit'
 import type { Option } from './types'
 
@@ -6,9 +7,8 @@ import type { Option } from './types'
  */
 export const useDeleteWorkflow = async (github: Octokit, option: Option) => {
   const { data: workflowData } = await github.rest.actions.listWorkflowRunsForRepo({ ...option })
-  workflowData.workflow_runs.forEach(item => {
-    github.rest.actions.deleteWorkflowRun({ ...option, run_id: item.id })
-  })
+  const allTask = workflowData.workflow_runs.map(item => github.rest.actions.deleteWorkflowRun({ ...option, run_id: item.id }))
+  await Promise.all(allTask)
 }
 
 /**
@@ -59,3 +59,8 @@ export const usePreMerge = async (github: Octokit, option: Option) => {
     }
   })
 }
+
+/**
+ * 转换选项
+ */
+export const useTransformOptions = (...options: string[][]) => options.map(arg => arg.map(value => ({ label: value, value })))

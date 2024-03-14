@@ -3,5 +3,13 @@ import GithubApi from './components/github-api.vue'
 </script>
 
 <template>
-  <GithubApi />
+  <div class="wrap">
+    <GithubApi />
+  </div>
 </template>
+
+<style lang="less" scoped>
+.wrap {
+  padding: 100px;
+}
+</style>

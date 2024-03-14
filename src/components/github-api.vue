@@ -1,53 +1,70 @@
 <script setup lang="ts">
+import { ref, createVNode } from 'vue'
+import { message, Modal } from 'ant-design-vue'
 import { Octokit } from 'octokit'
-import { Buffer } from 'buffer'
-import { useDeleteWorkflow, useCliMergeBranch, usePreMerge } from './hooks'
+import { useDeleteWorkflow, useCliMergeBranch, usePreMerge, useTransformOptions } from './hooks'
 
 defineOptions({
   name: 'GithubApi'
 })
 
-const owner = 'biaov'
-const repo = 'signin'
+const formState = ref({ owner: 'biaov', repo: 'signin' })
+const github = new Octokit({ auth: import.meta.env.VITE_TOKEN })
 
-const startTask = async () => {
-  const github = new Octokit({ auth: import.meta.env.VITE_TOKEN })
+const [ownerOptions, repOptions] = useTransformOptions(['biaov'], ['signin'])
 
+const handleBiz = async (type: string) => {
+  const hideLoading = message.loading('执行中...', 0)
   try {
-    const option = { owner, repo }
-    // usePreMerge(github, option) // 创建合并分支
-    // useDeleteWorkflow(github, option) // 删除工作流
-    useCliMergeBranch(github, option) // 自动创建合并分支
+    switch (type) {
+      case 'create':
+        await useCliMergeBranch(github, formState.value)
+        break
+      case 'delete':
+        await useDeleteWorkflow(github, formState.value)
+        break
+      case 'merge':
+        await usePreMerge(github, formState.value)
+        break
+    }
+    message.success('操作成功')
   } catch (error) {
-    console.log(error, '--')
+    Modal.confirm({
+      title: '错误提示',
+      content: createVNode('div', { style: 'color:#f81d22;' }, `失败原因：${JSON.stringify(error)}`)
+    })
   }
+  hideLoading()
 }
 </script>
 
 <template>
-  <div class="btn" @click="startTask">点击</div>
+  <a-row justify="center" class="w-500">
+    <a-col span="24">
+      <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 19 }">
+        <a-form-item label="作者" required>
+          <a-select v-model:value="formState.owner" :options="ownerOptions" placeholder="请选择作者名" disabled />
+        </a-form-item>
+        <a-form-item label="仓库名" required>
+          <a-select v-model:value="formState.repo" :options="repOptions" placeholder="请选择仓库名" />
+        </a-form-item>
+        <a-form-item :wrapper-col="{ span: 19, offset: 5 }">
+          <a-space>
+            <a-button type="primary" @click="handleBiz('create')">创建合并分支</a-button>
+            <a-button type="primary" danger @click="handleBiz('delete')">删除工作流</a-button>
+            <a-button type="primary" @click="handleBiz('merge')">合并分支</a-button>
+          </a-space>
+        </a-form-item>
+      </a-form>
+    </a-col>
+  </a-row>
 </template>
 
 <style scoped lang="less">
-.btn {
-  @bg: #409eff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  height: 40px;
-  line-height: 40px;
-  margin: 100px auto;
-  border-radius: 6px;
-  background: @bg;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s;
-  cursor: pointer;
-
-  &:hover {
-    background: darken(@bg, 20%);
-  }
+.w-fill {
+  width: 100%;
+}
+.w-500 {
+  width: 500px;
 }
 </style>

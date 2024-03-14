@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ant-design-vue": "^4.1.2",
     "buffer": "^6.0.3",
     "octokit": "^3.1.2",
     "vue": "^3.3.11"
