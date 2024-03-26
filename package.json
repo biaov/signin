@@ -1,7 +1,7 @@
 {
-  "name": "vite-project",
+  "name": "signin",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"
@@ -15,6 +15,7 @@
   "dependencies": {
     "ant-design-vue": "^4.1.2",
     "buffer": "^6.0.3",
+    "dayjs": "^1.11.10",
     "octokit": "^3.1.2",
     "vue": "^3.3.11"
   },

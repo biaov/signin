@@ -19,6 +19,11 @@
 - [x] 使用 Github Actions 实现签到逻辑
 - [x] 使用 TS 实现签到逻辑
 
+## `.env`
+
+- `VITE_DEFAULT_OWNER`: [Github 用户所有者名](https://github.com/settings/profile)
+- `VITE_GITHUB_TOKEN`: [获取 Github 生成的 token](https://github.com/settings/tokens/new)
+
 ## 贡献者们
 
 [![贡献者们](https://contrib.rocks/image?repo=biaov/signin)](https://github.com/biaov/signin/graphs/contributors)

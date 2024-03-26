@@ -1,15 +1,8 @@
+import { ref, createVNode } from 'vue'
+import { message, Modal } from 'ant-design-vue'
 import { Buffer } from 'buffer'
 import type { Octokit } from 'octokit'
-import type { Option } from './types'
-
-/**
- * 删除工作流
- */
-export const useDeleteWorkflow = async (github: Octokit, option: Option) => {
-  const { data: workflowData } = await github.rest.actions.listWorkflowRunsForRepo({ ...option })
-  const allTask = workflowData.workflow_runs.map(item => github.rest.actions.deleteWorkflowRun({ ...option, run_id: item.id }))
-  await Promise.all(allTask)
-}
+import type { Option, USEWorkflowOption, TableDataItem, SelectOption } from './types'
 
 /**
  * 自动化创建并合并分支
@@ -64,3 +57,80 @@ export const usePreMerge = async (github: Octokit, option: Option) => {
  * 转换选项
  */
 export const useTransformOptions = (...options: string[][]) => options.map(arg => arg.map(value => ({ label: value, value })))
+
+/**
+ * repos 数据
+ */
+export const useRepos = ({ github, formState }: Pick<USEWorkflowOption, 'github' | 'formState'>) => {
+  const options = ref<SelectOption[]>([])
+  const loadOptions = async () => {
+    const { data } = await github.rest.repos.listForUser({ type: 'owner', sort: 'created', direction: 'desc', username: formState.value.owner })
+    options.value = data.map(({ name }) => ({ label: name, value: name }))
+  }
+  loadOptions()
+  return [options, loadOptions]
+}
+
+/**
+ * 处理方法
+ */
+export const useHandles = ({ github, formState, onFormStateValidator }: USEWorkflowOption) => {
+  const handleBiz = async (type: string) => {
+    if (!onFormStateValidator()) return
+    const hideLoading = message.loading('执行中...', 0)
+    try {
+      switch (type) {
+        case 'create':
+          await useCliMergeBranch(github, formState.value)
+          break
+        case 'merge':
+          await usePreMerge(github, formState.value)
+          break
+      }
+      message.success('操作成功')
+    } catch (error) {
+      Modal.confirm({
+        title: '错误提示',
+        content: createVNode('div', { style: 'color:#f81d22;' }, `失败原因：${JSON.stringify(error)}`)
+      })
+    }
+    hideLoading()
+  }
+  return { handleBiz }
+}
+
+/**
+ * 工作流
+ */
+export const useWorkflow = ({ github, formState, onFormStateValidator }: USEWorkflowOption) => {
+  const tableData = ref<TableDataItem[]>([])
+  const loading = ref(false)
+  const loadTableData = async () => {
+    if (!onFormStateValidator()) return
+    loading.value = true
+    const { data } = await github.rest.actions.listWorkflowRunsForRepo({ ...formState.value })
+    tableData.value = data.workflow_runs as TableDataItem[]
+    loading.value = false
+  }
+  const removeItem = (item: TableDataItem) => github.rest.actions.deleteWorkflowRun({ ...formState.value, run_id: item.id })
+
+  const handleRemove = async (item: TableDataItem) => {
+    if (!onFormStateValidator()) return
+    const index = tableData.value.findIndex(it => it.id == item.id)
+    loading.value = true
+    await removeItem(item)
+    tableData.value.splice(index, 1)
+    loading.value = false
+    message.success('删除成功')
+  }
+
+  const handleBatchRemove = async () => {
+    if (!onFormStateValidator()) return
+    loading.value = true
+    await Promise.all(tableData.value.map(removeItem))
+    loading.value = false
+    tableData.value = []
+  }
+
+  return { loading, tableData, loadTableData, handleRemove, handleBatchRemove }
+}
