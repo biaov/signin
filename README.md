@@ -12,7 +12,7 @@
 
 ## 阶段记录
 
-![签到++](https://img.shields.io/badge/签到+118-19BE6B)
+![签到++](https://img.shields.io/badge/签到+119-19BE6B)
 
 ## 调用 Github Api 执行自动化签到
 
