@@ -1,7 +1,4 @@
-import { createApp } from 'vue'
-import Antd from 'ant-design-vue'
-import 'ant-design-vue/dist/reset.css'
-import './style/result.less'
 import App from './App.vue'
+import * as plugins from './plugins'
 
-createApp(App).use(Antd).mount('#app')
+createApp(App).use(plugins).mount('#app')
