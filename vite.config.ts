@@ -2,12 +2,12 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import components from 'unplugin-vue-components/vite'
 import autoImport from 'unplugin-auto-import/vite'
-import tailwindcss from 'tailwindcss'
+import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
-import { tailwindcssConfig } from './scripts/tailwindcss'
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     vue(),
     autoImport({
       // 依赖自动加载
@@ -26,11 +26,6 @@ export default defineConfig({
       dts: './types/components.d.ts'
     })
   ],
-  css: {
-    postcss: {
-      plugins: [tailwindcss(tailwindcssConfig())]
-    }
-  },
   server: {
     port: 3000,
     host: '0.0.0.0'

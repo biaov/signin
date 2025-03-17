@@ -112,21 +112,25 @@ export const useWorkflow = ({ github, formState, onFormStateValidator }: USEWork
     tableData.value = data.workflow_runs as TableDataItem[]
     loading.value = false
   }
-  const removeItem = (item: TableDataItem) => github.rest.actions.deleteWorkflowRun({ ...formState.value, run_id: item.id })
+  const removeItem = (item: TableDataItem) => {
+    console.log({ ...formState.value, run_id: item.id })
+    return github.rest.actions.deleteWorkflowRun({ ...formState.value, run_id: item.id })
+  }
 
   const handleRemove = async (item: TableDataItem) => {
     if (!onFormStateValidator()) return
     const index = tableData.value.findIndex(it => it.id == item.id)
     loading.value = true
     await removeItem(item)
-    tableData.value.splice(index, 1)
-    loading.value = false
-    message.success('删除成功')
+    // tableData.value.splice(index, 1)
+    // loading.value = false
+    // message.success('删除成功')
   }
 
   const handleBatchRemove = async () => {
     if (!onFormStateValidator()) return
     loading.value = true
+    github.rest.actions.deleteWorkflowRunLogs()
     await Promise.all(tableData.value.map(removeItem))
     loading.value = false
     tableData.value = []
