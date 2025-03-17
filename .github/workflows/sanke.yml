@@ -29,11 +29,10 @@ jobs:
             const author = { name: 'biaov', email: 'biaov@qq.com' }
             const covering = num => `${num < 10 ? 0 : ''}${num}`
             const curDate = new Date()
-            const curDateFormat = `${covering(curDate.getFullYear())}-${covering(curDate.getMonth() + 1)}-${covering(curDate.getDate())} ${covering(curDate.getHours())}:${covering(
-              curDate.getMinutes()
-            )}:${covering(curDate.getSeconds())}`
+            const [y, m, d, h, mm, s] = [curDate.getFullYear(), curDate.getMonth() + 1, curDate.getDate(), curDate.getHours(), curDate.getMinutes(), curDate.getSeconds()].map(covering)
+            const curDateFormat = `${y}-${m}-${d} ${h}:${mm}:${s}`
             const content = `更新时间: ${curDateFormat}`
-            const branchName = `feature/${+curDate}/auto-create`
+            const branchName = `feature/${y}${m}${d}${h}${mm}${s}/auto-create`
             const baseRef = 'main'
             const { data: readmeCont } = await github.rest.repos.getContent({ ...option, ref: 'main', path: 'README.md' })
             const newReadmeCont = Buffer.from(readmeCont.content, 'base64')
