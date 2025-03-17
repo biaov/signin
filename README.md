@@ -19,7 +19,7 @@
 
 ## 阶段记录
 
-![签到++](https://img.shields.io/badge/签到+427-19BE6B)
+![签到++](https://img.shields.io/badge/签到+428-19BE6B)
 
 ## `.env`
 
