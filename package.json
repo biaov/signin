@@ -7,6 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "demo": "node ./format.js",
     "start": "npm run dev",
     "dev": "vite",
     "build": "vite build",
