@@ -137,7 +137,8 @@ export const useWorkflow = ({ github, formState, onFormStateValidator }: USEWork
     await Promise.all(
       tableData.value.map(async item => {
         await removeItem(item)
-        spinning.value.percent = number++
+        number++
+        spinning.value.percent = Math.round((number / length) * 100)
         return item
       })
     )
