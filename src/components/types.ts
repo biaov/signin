@@ -30,6 +30,8 @@ export interface USEWorkflowOption {
  */
 export interface TableDataItem {
   id: number
+  workflow_id: number
+  run_number: number
   name: string
   event: string
   html_url: string

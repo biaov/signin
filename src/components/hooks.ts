@@ -108,33 +108,45 @@ export const useWorkflow = ({ github, formState, onFormStateValidator }: USEWork
   const loadTableData = async () => {
     if (!onFormStateValidator()) return
     loading.value = true
-    const { data } = await github.rest.actions.listWorkflowRunsForRepo({ ...formState.value })
+    const { data } = await github.rest.actions.listWorkflowRunsForRepo({ ...formState.value, per_page: 100 })
     tableData.value = data.workflow_runs as TableDataItem[]
     loading.value = false
   }
-  const removeItem = (item: TableDataItem) => {
-    console.log({ ...formState.value, run_id: item.id })
-    return github.rest.actions.deleteWorkflowRun({ ...formState.value, run_id: item.id })
-  }
+  const removeItem = (item: TableDataItem) => github.rest.actions.deleteWorkflowRun({ ...formState.value, run_id: item.id })
 
   const handleRemove = async (item: TableDataItem) => {
     if (!onFormStateValidator()) return
     const index = tableData.value.findIndex(it => it.id == item.id)
     loading.value = true
     await removeItem(item)
-    // tableData.value.splice(index, 1)
-    // loading.value = false
-    // message.success('删除成功')
+    tableData.value.splice(index, 1)
+    loading.value = false
+    message.success('删除成功')
   }
-
+  const spinning = ref({
+    loading: false,
+    percent: 0
+  })
   const handleBatchRemove = async () => {
     if (!onFormStateValidator()) return
+    const { length } = tableData.value
+    if (!length) return message.error('没有要删除的数据')
+    spinning.value.loading = true
     loading.value = true
-    github.rest.actions.deleteWorkflowRunLogs()
-    await Promise.all(tableData.value.map(removeItem))
+    let number = 0
+    await Promise.all(
+      tableData.value.map(async item => {
+        await removeItem(item)
+        spinning.value.percent = number++
+        return item
+      })
+    )
     loading.value = false
+    spinning.value.loading = false
+    spinning.value.percent = 0
     tableData.value = []
+    message.success('删除完成')
   }
 
-  return { loading, tableData, loadTableData, handleRemove, handleBatchRemove }
+  return { loading, tableData, loadTableData, handleRemove, handleBatchRemove, spinning }
 }
