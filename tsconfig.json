@@ -21,7 +21,6 @@
     "moduleResolution": "Bundler",
 
     /* 路径 */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

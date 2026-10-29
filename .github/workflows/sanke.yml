@@ -2,7 +2,8 @@ name: timed-cli
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    # 每 12 小时执行一次（UTC 00:00 / 12:00）
+    - cron: '0 */12 * * *'
   push:
     branches:
       - main
@@ -24,11 +25,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            ;(async () => {
-              const { owner, repo } = context.repo
-              const option = { owner, repo }
-              const author = { name: 'biaov', email: 'biaov@qq.com' }
-              const covering = num => `${num < 10 ? 0 : ''}${num}`
+            const { owner, repo } = context.repo
+            const option = { owner, repo }
+            const author = { name: 'biaov', email: 'biaov@qq.com' }
+            const covering = num => `${num < 10 ? 0 : ''}${num}`
+            const maxAttempts = 2
+
+            const run = async () => {
               const curDate = new Date()
               const [y, m, d, h, mm, s] = [curDate.getFullYear(), curDate.getMonth() + 1, curDate.getDate(), curDate.getHours(), curDate.getMinutes(), curDate.getSeconds()].map(covering)
               const curDateFormat = `${y}-${m}-${d} ${h}:${mm}:${s}`
@@ -56,5 +59,19 @@ jobs:
               await github.rest.git.updateRef({ ...option, ref: `heads/${branchName}`, sha: newCommitData.sha, force: true })
               const { data: prData } = await github.rest.pulls.create({ ...option, title: `自动创建分支${branchName}`, head: `biaov:${branchName}`, base: baseRef, body: `自动创建分支${branchName}` })
               await github.rest.pulls.merge({ ...option, pull_number: prData.number })
-            })()
+            }
+
+            // 失败后重试一次，避免偶发的网络/接口异常导致本次任务直接失败
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+              try {
+                await run()
+                console.log(`第 ${attempt} 次执行成功`)
+                break
+              } catch (error) {
+                core.warning(`第 ${attempt}/${maxAttempts} 次执行失败: ${error.message}`)
+                if (attempt === maxAttempts) throw error
+                // 稍作等待，避免重试时生成的分支名与上一次相同
+                await new Promise(resolve => setTimeout(resolve, 1000))
+              }
+            }
 
