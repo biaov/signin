@@ -12,6 +12,10 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # 串行执行，避免 push 与定时触发同时运行导致当天重复执行
+    concurrency:
+      group: timed-cli
+      cancel-in-progress: false
 
     steps:
       - name: Checkout Repository
@@ -27,6 +31,24 @@ jobs:
           script: |
             const { owner, repo } = context.repo
             const option = { owner, repo }
+
+            // 每天只成功执行一次：当天已有成功运行时跳过本次，失败则允许后续触发重试。
+            // runner 为 UTC 时区，与定时任务（UTC 00:00 / 12:00）及提交时间保持一致。
+            const todayStart = new Date()
+            todayStart.setUTCHours(0, 0, 0, 0)
+            const today = todayStart.toISOString().slice(0, 10)
+            const workflowFile = (process.env.GITHUB_WORKFLOW_REF || '').split('/').pop().split('@')[0] || 'sanke.yml'
+            const { data: todayRuns } = await github.rest.actions.listWorkflowRuns({
+              ...option,
+              workflow_id: workflowFile,
+              created: `>=${today}`,
+              per_page: 100
+            })
+            if (todayRuns.workflow_runs.some(item => item.conclusion === 'success')) {
+              core.notice(`今日（${today} UTC）已成功执行过，跳过本次执行`)
+              return
+            }
+
             const author = { name: 'biaov', email: 'biaov@qq.com' }
             const covering = num => `${num < 10 ? 0 : ''}${num}`
             const maxAttempts = 2
