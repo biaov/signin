@@ -37,7 +37,9 @@ jobs:
             const todayStart = new Date()
             todayStart.setUTCHours(0, 0, 0, 0)
             const today = todayStart.toISOString().slice(0, 10)
-            const workflowFile = (process.env.GITHUB_WORKFLOW_REF || '').split('/').pop().split('@')[0] || 'sanke.yml'
+            // GITHUB_WORKFLOW_REF 形如 owner/repo/.github/workflows/sanke.yml@refs/heads/main，
+            // 必须先按 '@' 去掉 ref，否则末尾的 refs/heads/main 会被 'split("/")' 误当成文件名
+            const workflowFile = (process.env.GITHUB_WORKFLOW_REF || '').split('@')[0].split('/').pop() || 'sanke.yml'
             const { data: todayRuns } = await github.rest.actions.listWorkflowRuns({
               ...option,
               workflow_id: workflowFile,
